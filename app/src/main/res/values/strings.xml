@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">WS Companion</string>
+    <string name="title_dashboard">WS CRM // DASHBOARD</string>
+    <string name="quick_templates">PLANTILLAS RÁPIDAS</string>
+    <string name="copied_to_clipboard">¡Copiado al portapapeles!</string>
+    <string name="floating_service_running">Burbuja flotante activa</string>
+    <string name="open_whatsapp">Abrir WhatsApp</string>
+    <string name="new_template">Nueva Plantilla</string>
+    <string name="leads_pipeline">CRM PIPELINE</string>
+    <string name="direct_chat">CHAT DIRECTO</string>
+</resources>
