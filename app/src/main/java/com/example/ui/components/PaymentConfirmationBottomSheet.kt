@@ -16,10 +16,12 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -101,7 +103,7 @@ fun PaymentConfirmationBottomSheet(
                 .navigationBarsPadding()
                 .padding(24.dp)
         ) {
-            // Título: Pagar con [Método]
+            // Título: Pagar con [Método] + Botón X
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -128,6 +130,25 @@ fun PaymentConfirmationBottomSheet(
                         fontSize = 11.5.sp,
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+
+                IconButton(
+                    onClick = onDismissRequest,
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(CircleShape)
+                        .background(Color(0xFF1E1E2E))
+                        .border(1.dp, colorNeon.copy(alpha = 0.6f), CircleShape)
+                        .testTag("close_payment_confirmation_sheet")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Cerrar",
+                        tint = colorNeon,
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }

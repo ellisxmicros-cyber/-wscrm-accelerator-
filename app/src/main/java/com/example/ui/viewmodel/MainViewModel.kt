@@ -41,6 +41,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // Language state with SharedPreferences persistence
+    private val prefs = application.getSharedPreferences("turboventas_prefs", Context.MODE_PRIVATE)
+    private val _isEnglish = MutableStateFlow(
+        prefs.getBoolean("is_english", java.util.Locale.getDefault().language.lowercase().startsWith("en"))
+    )
+    val isEnglish: StateFlow<Boolean> = _isEnglish.asStateFlow()
+
+    fun setLanguage(isEnglish: Boolean) {
+        _isEnglish.value = isEnglish
+        prefs.edit().putBoolean("is_english", isEnglish).apply()
+    }
+
+    fun toggleLanguage() {
+        setLanguage(!_isEnglish.value)
+    }
+
     // Customer Interaction History
     val allInteractions: StateFlow<List<CustomerInteractionEntity>> = repository.allInteractions
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -197,6 +213,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } catch (_: Exception) {}
 
         Toast.makeText(context, "⚡ ¡Mensaje personalizado copiado!", Toast.LENGTH_SHORT).show()
+    }
+
+    fun restoreData(templates: List<TemplateEntity>, leads: List<LeadEntity>) {
+        viewModelScope.launch {
+            templates.forEach { repository.insertTemplate(it) }
+            leads.forEach { repository.insertLead(it) }
+            Toast.makeText(getApplication(), "✅ Datos restaurados exitosamente", Toast.LENGTH_LONG).show()
+        }
     }
 
     // Lead actions

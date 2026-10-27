@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">TurboVentas WS</string>
+    <string name="title_dashboard">TURBOVENTAS WS // CRM</string>
+    <string name="quick_templates">QUICK TEMPLATES</string>
+    <string name="copied_to_clipboard">Copied to clipboard!</string>
+    <string name="floating_service_running">Floating bubble active</string>
+    <string name="open_whatsapp">Open WhatsApp</string>
+    <string name="new_template">New Template</string>
+    <string name="leads_pipeline">CRM PIPELINE</string>
+    <string name="direct_chat">DIRECT CHAT</string>
+</resources>

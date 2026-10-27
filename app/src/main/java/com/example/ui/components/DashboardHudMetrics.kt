@@ -33,6 +33,7 @@ import com.example.ui.theme.NeonCyan
 import com.example.ui.theme.NeonGreen
 import com.example.ui.theme.NeonPurple
 import com.example.ui.theme.TextMuted
+import com.example.util.tr
 
 /**
  * Cyberpunk Dashboard HUD Metrics Row.
@@ -52,21 +53,21 @@ fun DashboardHudMetrics(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         HudMetricCard(
-            label = "PLANTILLAS",
+            label = tr("PLANTILLAS", "TEMPLATES"),
             value = totalTemplates.toString(),
             icon = Icons.Default.FlashOn,
             accentColor = NeonCyan,
             modifier = Modifier.weight(1f)
         )
         HudMetricCard(
-            label = "USOS HOY",
+            label = tr("USOS HOY", "USES TODAY"),
             value = totalUsages.toString(),
             icon = Icons.Default.Send,
             accentColor = NeonGreen,
             modifier = Modifier.weight(1f)
         )
         HudMetricCard(
-            label = "LEADS CRM",
+            label = tr("LEADS CRM", "CRM LEADS"),
             value = activeLeads.toString(),
             icon = Icons.Default.Group,
             accentColor = NeonPurple,

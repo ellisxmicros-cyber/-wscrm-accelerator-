@@ -45,11 +45,15 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material3.Icon
 import com.example.data.Template
 import com.example.ui.theme.CyberBorder
 import com.example.ui.theme.CyberCardVariant
 import com.example.ui.theme.NeonCyan
 import com.example.ui.theme.NeonGreen
+import com.example.ui.theme.NeonPurple
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextWhite
 
@@ -71,6 +75,7 @@ fun AddTemplateBottomSheet(
     var content by remember(initialTemplate) { mutableStateOf(initialTemplate?.content ?: "") }
     var category by remember(initialTemplate) { mutableStateOf(initialTemplate?.category ?: "Ventas") }
     var isPinned by remember(initialTemplate) { mutableStateOf(initialTemplate?.isPinned ?: false) }
+    var isAiCopilotOpen by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     val categories = listOf("Ventas", "Soporte", "Seguimiento", "Precios", "Pagos", "Info", "Saludos", "Envíos", "Cierre", "Promos")
@@ -212,6 +217,81 @@ fun AddTemplateBottomSheet(
                 }
             }
 
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // 🤖 AI Persuasion Assistant Tones
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "⚡ ASISTENTE IA DE PERSUASIÓN",
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 10.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = NeonCyan,
+                    letterSpacing = 0.8.sp
+                )
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0xFF261238))
+                        .border(1.dp, NeonPurple, RoundedCornerShape(6.dp))
+                        .clickable { isAiCopilotOpen = true }
+                        .padding(horizontal = 7.dp, vertical = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AutoAwesome,
+                        contentDescription = "Copiloto",
+                        tint = NeonPurple,
+                        modifier = Modifier.size(12.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "⚡ COPILOTO GEMINI",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = NeonPurple
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                com.example.util.SalesAiAssistant.PersuasionTone.values().forEach { tone ->
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFF162032))
+                            .border(1.dp, NeonCyan.copy(alpha = 0.4f), RoundedCornerShape(6.dp))
+                            .clickable {
+                                content = com.example.util.SalesAiAssistant.optimizeTemplate(
+                                    originalText = content,
+                                    tone = tone,
+                                    clientName = "{nombre}",
+                                    productName = "{producto}"
+                                )
+                                if (title.isBlank()) {
+                                    title = "${tone.emoji} ${tone.labelEs}"
+                                }
+                            }
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "${tone.emoji} ${tone.labelEs}",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 10.sp,
+                            color = NeonCyan
+                        )
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             // Campo 2: Contenido
@@ -316,5 +396,24 @@ fun AddTemplateBottomSheet(
                 )
             }
         }
+    }
+
+    if (isAiCopilotOpen) {
+        AiSalesCopilotBottomSheet(
+            onDismissRequest = { isAiCopilotOpen = false },
+            onSaveAsTemplate = { tTitle, tContent, _ ->
+                title = tTitle
+                content = tContent
+                isAiCopilotOpen = false
+            },
+            onUseGeneratedText = { generatedText ->
+                content = generatedText
+                if (title.isBlank()) {
+                    title = "⚡ Copy IA Gemini"
+                }
+                isAiCopilotOpen = false
+            },
+            initialPrompt = content
+        )
     }
 }

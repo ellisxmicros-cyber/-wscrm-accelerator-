@@ -57,6 +57,7 @@ import com.example.ui.theme.NeonGreen
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextWhite
 import com.example.ui.viewmodel.UserSession
+import com.example.util.tr
 
 /**
  * Cyberpunk Quick Access & Auth Modal Bottom Sheet.
@@ -127,7 +128,7 @@ fun QuickAccessAuthBottomSheet(
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "ACCESO RÁPIDO // CRM",
+                    text = tr("ACCESO RÁPIDO // CRM", "QUICK ACCESS // CRM"),
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold,
                     fontSize = 11.5.sp,
@@ -141,7 +142,7 @@ fun QuickAccessAuthBottomSheet(
             if (userSession.isLoggedIn) {
                 // Active session view
                 Text(
-                    text = "SESIÓN ACTIVA",
+                    text = tr("SESIÓN ACTIVA", "ACTIVE SESSION"),
                     fontFamily = FontFamily.Monospace,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
@@ -149,7 +150,10 @@ fun QuickAccessAuthBottomSheet(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Tus plantillas y contactos se sincronizan localmente",
+                    text = tr(
+                        "Tus plantillas y contactos se sincronizan localmente",
+                        "Your templates and contacts are synced locally"
+                    ),
                     fontSize = 12.5.sp,
                     color = TextMuted
                 )
@@ -208,7 +212,7 @@ fun QuickAccessAuthBottomSheet(
                                 color = TextMuted
                             )
                             Text(
-                                text = "Método: ${userSession.authProvider.uppercase()}",
+                                text = "${tr("Método", "Method")}: ${userSession.authProvider.uppercase()}",
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 10.5.sp,
                                 color = NeonCyan
@@ -238,7 +242,7 @@ fun QuickAccessAuthBottomSheet(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "CERRAR SESIÓN / CAMBIAR CUENTA",
+                        text = tr("CERRAR SESIÓN / CAMBIAR CUENTA", "SIGN OUT / CHANGE ACCOUNT"),
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
@@ -249,14 +253,17 @@ fun QuickAccessAuthBottomSheet(
             } else {
                 // Login options
                 Text(
-                    text = "Bienvenido a WS CRM",
+                    text = tr("Bienvenido a WS CRM", "Welcome to WS CRM"),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Elige tu método de acceso rápido para continuar",
+                    text = tr(
+                        "Elige tu método de acceso rápido para continuar",
+                        "Choose your quick sign-in method to continue"
+                    ),
                     fontSize = 12.5.sp,
                     color = TextMuted
                 )
@@ -301,7 +308,7 @@ fun QuickAccessAuthBottomSheet(
                         }
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "Continuar con Google",
+                            text = tr("Continuar con Google", "Continue with Google"),
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
                             color = Color.White
@@ -342,7 +349,7 @@ fun QuickAccessAuthBottomSheet(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "Ingresar con WhatsApp / Teléfono",
+                            text = tr("Ingresar con WhatsApp / Teléfono", "Sign in with WhatsApp / Phone"),
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp,
                             color = Color.White
@@ -351,6 +358,7 @@ fun QuickAccessAuthBottomSheet(
                 }
 
                 // Interactive Phone Input drawer
+                val validationErrorPhone = tr("Ingresa un número válido", "Please enter a valid phone number")
                 AnimatedVisibility(visible = isPhoneInputVisible) {
                     Column(
                         modifier = Modifier
@@ -362,7 +370,7 @@ fun QuickAccessAuthBottomSheet(
                             .padding(14.dp)
                     ) {
                         Text(
-                            text = "INGRESA TU NÚMERO DE WHATSAPP:",
+                            text = tr("INGRESA TU NÚMERO DE WHATSAPP:", "ENTER YOUR WHATSAPP NUMBER:"),
                             fontFamily = FontFamily.Monospace,
                             fontSize = 11.sp,
                             color = NeonCyan,
@@ -430,7 +438,7 @@ fun QuickAccessAuthBottomSheet(
                         Button(
                             onClick = {
                                 if (phoneNumber.trim().length < 6) {
-                                    phoneError = "Ingresa un número válido"
+                                    phoneError = validationErrorPhone
                                     return@Button
                                 }
                                 val fullPhone = "${countryCode.trim()} ${phoneNumber.trim()}"
@@ -448,7 +456,7 @@ fun QuickAccessAuthBottomSheet(
                             )
                         ) {
                             Text(
-                                text = "CONFIRMAR INGRESO",
+                                text = tr("CONFIRMAR INGRESO", "CONFIRM SIGN IN"),
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 12.5.sp
@@ -473,7 +481,7 @@ fun QuickAccessAuthBottomSheet(
                     )
                 ) {
                     Text(
-                        text = "Continuar en Modo Offline (Local)",
+                        text = tr("Continuar en Modo Offline (Local)", "Continue in Offline Mode (Local)"),
                         fontFamily = FontFamily.Monospace,
                         fontSize = 12.sp,
                         color = TextMuted

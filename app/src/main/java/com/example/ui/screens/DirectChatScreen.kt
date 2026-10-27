@@ -20,6 +20,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Send
@@ -62,6 +63,7 @@ import com.example.ui.theme.NeonGreen
 import com.example.ui.theme.NeonPurple
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextWhite
+import com.example.util.tr
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,15 +83,18 @@ fun DirectChatScreen(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val isEnglish = com.example.util.LocalIsEnglish.current
     var clientName by remember { mutableStateOf("") }
     var productName by remember { mutableStateOf("") }
     var showCountryMenu by remember { mutableStateOf(false) }
+    var isAiCopilotOpen by remember { mutableStateOf(false) }
 
     val countryCodes = listOf(
         "+58" to "Venezuela",
         "+57" to "Colombia",
         "+52" to "México",
-        "+1" to "USA / Canadá",
+        "+1" to "USA / Canada",
+        "+44" to "UK",
         "+34" to "España",
         "+54" to "Argentina",
         "+56" to "Chile",
@@ -106,7 +111,7 @@ fun DirectChatScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "WS CHAT // DIRECTO",
+                        text = tr("TURBOVENTAS // CHAT DIRECTO", "TURBOVENTAS // DIRECT CHAT"),
                         fontFamily = FontFamily.Monospace,
                         letterSpacing = 2.sp,
                         color = NeonCyan,
@@ -128,7 +133,7 @@ fun DirectChatScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "INICIAR CONVERSACIÓN SIN GUARDAR CONTACTO",
+                text = tr("INICIAR CONVERSACIÓN SIN GUARDAR CONTACTO", "START WHATSAPP CHAT WITHOUT SAVING CONTACT"),
                 fontFamily = FontFamily.Monospace,
                 fontSize = 11.sp,
                 color = TextMuted,
@@ -192,8 +197,8 @@ fun DirectChatScreen(
                 CyberTextField(
                     value = phoneNumber,
                     onValueChange = onPhoneNumberChange,
-                    label = "NÚMERO DE TELÉFONO",
-                    placeholder = "ej. 4121234567",
+                    label = tr("NÚMERO DE TELÉFONO", "PHONE NUMBER"),
+                    placeholder = tr("ej. 4121234567", "e.g. 3051234567"),
                     modifier = Modifier.weight(1f),
                     testTag = "direct_phone_input"
                 )
@@ -209,16 +214,16 @@ fun DirectChatScreen(
                 CyberTextField(
                     value = clientName,
                     onValueChange = { clientName = it },
-                    label = "NOMBRE CLIENTE",
-                    placeholder = "ej. María",
+                    label = tr("NOMBRE CLIENTE", "CLIENT NAME"),
+                    placeholder = tr("ej. María", "e.g. Sarah"),
                     modifier = Modifier.weight(1f),
                     testTag = "direct_client_name"
                 )
                 CyberTextField(
                     value = productName,
                     onValueChange = { productName = it },
-                    label = "PRODUCTO",
-                    placeholder = "ej. Opción Pro",
+                    label = tr("PRODUCTO", "PRODUCT"),
+                    placeholder = tr("ej. Opción Pro", "e.g. Pro Plan"),
                     modifier = Modifier.weight(1f),
                     testTag = "direct_product_name"
                 )
@@ -228,7 +233,7 @@ fun DirectChatScreen(
 
             // Quick Template Picker
             Text(
-                text = "SELECCIONAR PLANTILLA RÁPIDA",
+                text = tr("SELECCIONAR PLANTILLA RÁPIDA", "SELECT QUICK TEMPLATE"),
                 fontFamily = FontFamily.Monospace,
                 fontSize = 11.sp,
                 color = TextMuted,
@@ -249,7 +254,9 @@ fun DirectChatScreen(
                             .clickable {
                                 onApplyTemplate(template, clientName, productName)
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("Plantilla '${template.title}' aplicada")
+                                    snackbarHostState.showSnackbar(
+                                        if (isEnglish) "Template '${template.title}' applied" else "Plantilla '${template.title}' aplicada"
+                                    )
                                 }
                             }
                             .padding(horizontal = 10.dp, vertical = 6.dp)
@@ -266,12 +273,53 @@ fun DirectChatScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
+            // Message Header with AI button
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = tr("MENSAJE DE WHATSAPP", "WHATSAPP MESSAGE"),
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 11.sp,
+                    color = TextMuted,
+                    letterSpacing = 1.sp
+                )
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(Color(0xFF261238))
+                        .border(1.dp, NeonPurple, RoundedCornerShape(6.dp))
+                        .clickable { isAiCopilotOpen = true }
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AutoAwesome,
+                        contentDescription = "IA",
+                        tint = NeonPurple,
+                        modifier = Modifier.size(13.dp)
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(
+                        text = tr("⚡ REDACTAR CON IA", "⚡ DRAFT WITH AI"),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = NeonPurple
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
             // Message Body
             CyberTextField(
                 value = messageText,
                 onValueChange = onMessageChange,
-                label = "MENSAJE DE WHATSAPP",
-                placeholder = "Escribe o selecciona una plantilla para enviar...",
+                label = tr("TEXTO DEL MENSAJE", "MESSAGE TEXT"),
+                placeholder = tr("Escribe o selecciona una plantilla para enviar...", "Type or select a template to send..."),
                 singleLine = false,
                 maxLines = 8,
                 testTag = "direct_message_input"
@@ -281,7 +329,7 @@ fun DirectChatScreen(
 
             // Main Action Button
             NeonButton(
-                text = "⚡ INICIAR CHAT EN WHATSAPP",
+                text = tr("⚡ INICIAR CHAT EN WHATSAPP", "⚡ START WHATSAPP CHAT"),
                 color = NeonGreen,
                 icon = Icons.Default.Send,
                 onClick = {
@@ -291,7 +339,7 @@ fun DirectChatScreen(
                         "$countryCode$phoneNumber"
                     }
                     if (phoneNumber.isBlank()) {
-                        scope.launch { snackbarHostState.showSnackbar("Por favor ingresa un número de teléfono") }
+                        scope.launch { snackbarHostState.showSnackbar("Por favor ingresa un número de teléfono / Please enter a phone number") }
                         return@NeonButton
                     }
                     onLaunchWhatsApp(fullPhone, messageText)
@@ -308,7 +356,7 @@ fun DirectChatScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 NeonOutlinedButton(
-                    text = "GUARDAR EN CRM",
+                    text = tr("GUARDAR EN CRM", "SAVE TO CRM"),
                     color = NeonCyan,
                     icon = Icons.Default.PersonAdd,
                     onClick = {
@@ -327,10 +375,11 @@ fun DirectChatScreen(
                                 name = leadName,
                                 phone = fullPhone,
                                 productInterest = productName,
-                                notes = "Iniciado desde Chat Directo"
+                                notes = if (isEnglish) "Started from Direct Chat" else "Iniciado desde Chat Directo"
                             )
                         )
-                        scope.launch { snackbarHostState.showSnackbar("Lead guardado en el CRM") }
+                        val msgLeadSaved = if (isEnglish) "Lead saved to CRM" else "Lead guardado en el CRM"
+                        scope.launch { snackbarHostState.showSnackbar(msgLeadSaved) }
                     },
                     modifier = Modifier.weight(1f),
                     testTag = "save_lead_from_direct_btn"
@@ -345,7 +394,7 @@ fun DirectChatScreen(
             ) {
                 Column {
                     Text(
-                        text = "VISTA PREVIA DE ENLACE",
+                        text = tr("VISTA PREVIA DE ENLACE", "LINK PREVIEW"),
                         fontFamily = FontFamily.Monospace,
                         fontSize = 11.sp,
                         color = TextMuted
@@ -362,12 +411,32 @@ fun DirectChatScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Abre directamente WhatsApp o WhatsApp Business sin necesidad de agregar el número a la agenda.",
+                        text = tr(
+                            "Abre directamente WhatsApp o WhatsApp Business sin necesidad de agregar el número a la agenda.",
+                            "Opens WhatsApp or WhatsApp Business directly without saving the phone number to your contacts."
+                        ),
                         fontSize = 12.sp,
                         color = TextMuted
                     )
                 }
             }
         }
+    }
+
+    if (isAiCopilotOpen) {
+        com.example.ui.components.AiSalesCopilotBottomSheet(
+            onDismissRequest = { isAiCopilotOpen = false },
+            onSaveAsTemplate = { _, _, _ -> },
+            onUseGeneratedText = { generatedText ->
+                onMessageChange(generatedText)
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        if (isEnglish) "✨ Message drafted with AI" else "✨ Mensaje redactado con IA"
+                    )
+                }
+            },
+            initialClientName = clientName,
+            initialProductName = productName
+        )
     }
 }

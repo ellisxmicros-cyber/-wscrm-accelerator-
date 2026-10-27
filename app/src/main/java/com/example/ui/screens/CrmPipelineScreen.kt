@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -71,8 +72,10 @@ import com.example.ui.theme.CyberCard
 import com.example.ui.theme.CyberCardVariant
 import com.example.ui.theme.NeonCyan
 import com.example.ui.theme.NeonGreen
+import com.example.ui.theme.NeonPurple
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextWhite
+import com.example.util.tr
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -97,6 +100,7 @@ fun CrmPipelineScreen(
     val scope = rememberCoroutineScope()
     var editingLead by remember { mutableStateOf<LeadEntity?>(null) }
     var isCreatingNew by remember { mutableStateOf(false) }
+    var aiLeadTarget by remember { mutableStateOf<LeadEntity?>(null) }
 
     // Metrics calculations
     val totalLeads = allLeads.size
@@ -111,7 +115,7 @@ fun CrmPipelineScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "WS CRM // PIPELINE",
+                        text = tr("TURBOVENTAS // PIPELINE", "TURBOVENTAS // PIPELINE"),
                         fontFamily = FontFamily.Monospace,
                         letterSpacing = 2.sp,
                         color = NeonGreen,
@@ -136,7 +140,7 @@ fun CrmPipelineScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar cliente o prospecto",
+                    contentDescription = tr("Agregar cliente o prospecto", "Add client or lead"),
                     modifier = Modifier.size(28.dp),
                     tint = Color.Black
                 )
@@ -155,19 +159,19 @@ fun CrmPipelineScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 PipelineMetricCard(
-                    title = "PROSPECTOS",
+                    title = tr("PROSPECTOS", "LEADS"),
                     value = "$totalLeads",
                     accentColor = NeonCyan,
                     modifier = Modifier.weight(1f)
                 )
                 PipelineMetricCard(
-                    title = "VENTAS",
+                    title = tr("VENTAS", "WON DEALS"),
                     value = "$wonDeals",
                     accentColor = NeonGreen,
                     modifier = Modifier.weight(1f)
                 )
                 PipelineMetricCard(
-                    title = "VALOR USD",
+                    title = tr("VALOR USD", "USD VALUE"),
                     value = "\$${"%.0f".format(totalPipelineValue)}",
                     accentColor = Color(0xFFFFE600),
                     modifier = Modifier.weight(1.2f)
@@ -180,8 +184,8 @@ fun CrmPipelineScreen(
             CyberTextField(
                 value = searchQuery,
                 onValueChange = onSearchChange,
-                label = "BUSCAR EN CRM",
-                placeholder = "Buscar por cliente, teléfono, notas...",
+                label = tr("BUSCAR EN CRM", "SEARCH IN CRM"),
+                placeholder = tr("Buscar por cliente, teléfono, notas...", "Search by client, phone, notes..."),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -195,7 +199,7 @@ fun CrmPipelineScreen(
                         IconButton(onClick = { onSearchChange("") }) {
                             Icon(
                                 imageVector = Icons.Default.Clear,
-                                contentDescription = "Limpiar",
+                                contentDescription = tr("Limpiar", "Clear"),
                                 tint = TextMuted,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -214,7 +218,7 @@ fun CrmPipelineScreen(
             ) {
                 item {
                     CyberFilterChip(
-                        text = "Todos (${allLeads.size})",
+                        text = tr("Todos (${allLeads.size})", "All (${allLeads.size})"),
                         selected = selectedStage == null,
                         onClick = { onStageFilterChange(null) },
                         activeColor = NeonGreen
@@ -223,7 +227,7 @@ fun CrmPipelineScreen(
                 items(LeadStage.values()) { stage ->
                     val count = allLeads.count { it.stage == stage }
                     CyberFilterChip(
-                        text = "${stage.label} ($count)",
+                        text = "${stage.localizedLabel()} ($count)",
                         selected = selectedStage == stage,
                         onClick = { onStageFilterChange(stage) },
                         activeColor = Color(stage.colorHex)
@@ -249,7 +253,7 @@ fun CrmPipelineScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "No hay prospectos en esta etapa",
+                            text = tr("No hay prospectos en esta etapa", "No leads in this stage"),
                             fontFamily = FontFamily.Monospace,
                             color = TextMuted,
                             fontSize = 13.sp
@@ -265,6 +269,7 @@ fun CrmPipelineScreen(
                         LeadCard(
                             lead = lead,
                             onOpenWhatsApp = { onOpenWhatsApp(lead.phone, lead.name) },
+                            onAiSuggest = { aiLeadTarget = lead },
                             onEdit = { editingLead = lead },
                             onDelete = { onDeleteLead(lead) },
                             onStageChange = { newStage -> onUpdateStage(lead.id, newStage) }
@@ -298,6 +303,24 @@ fun CrmPipelineScreen(
                 onSaveLead(it)
                 editingLead = null
                 scope.launch { snackbarHostState.showSnackbar("Datos actualizados") }
+            }
+        )
+    }
+
+    aiLeadTarget?.let { targetLead ->
+        com.example.ui.components.AiSalesCopilotBottomSheet(
+            onDismissRequest = { aiLeadTarget = null },
+            onSaveAsTemplate = { _, _, _ -> },
+            onUseGeneratedText = { _ ->
+                onOpenWhatsApp(targetLead.phone, targetLead.name)
+                aiLeadTarget = null
+            },
+            initialClientName = targetLead.name,
+            initialProductName = targetLead.productInterest,
+            initialPrompt = if (targetLead.notes.isNotBlank()) {
+                "Seguimiento comercial a ${targetLead.name}: ${targetLead.notes}"
+            } else {
+                "Seguimiento comercial en etapa ${targetLead.stage.label}"
             }
         )
     }
@@ -341,6 +364,7 @@ fun PipelineMetricCard(
 fun LeadCard(
     lead: LeadEntity,
     onOpenWhatsApp: () -> Unit,
+    onAiSuggest: () -> Unit = {},
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onStageChange: (LeadStage) -> Unit,
@@ -379,6 +403,20 @@ fun LeadCard(
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
+                        onClick = onAiSuggest,
+                        modifier = Modifier
+                            .size(34.dp)
+                            .testTag("lead_ai_btn_${lead.id}")
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AutoAwesome,
+                            contentDescription = tr("Redactar con IA", "Draft with AI"),
+                            tint = NeonPurple,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    IconButton(
                         onClick = onOpenWhatsApp,
                         modifier = Modifier
                             .size(36.dp)
@@ -386,7 +424,7 @@ fun LeadCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Send,
-                            contentDescription = "Abrir WhatsApp",
+                            contentDescription = tr("Abrir WhatsApp", "Open WhatsApp"),
                             tint = NeonGreen,
                             modifier = Modifier.size(20.dp)
                         )
@@ -398,7 +436,7 @@ fun LeadCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Editar",
+                            contentDescription = tr("Editar", "Edit"),
                             tint = TextMuted,
                             modifier = Modifier.size(16.dp)
                         )
@@ -410,7 +448,7 @@ fun LeadCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Eliminar",
+                            contentDescription = tr("Eliminar", "Delete"),
                             tint = Color(0xFFFF3366).copy(alpha = 0.7f),
                             modifier = Modifier.size(16.dp)
                         )
@@ -432,7 +470,7 @@ fun LeadCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "ETAPA: ${lead.stage.label}",
+                        text = "${tr("ETAPA", "STAGE")}: ${lead.stage.localizedLabel()}",
                         fontFamily = FontFamily.Monospace,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
@@ -441,7 +479,7 @@ fun LeadCard(
                     Spacer(modifier = Modifier.width(4.dp))
                     Icon(
                         imageVector = Icons.Default.ArrowForward,
-                        contentDescription = "Cambiar etapa",
+                        contentDescription = tr("Cambiar etapa", "Change stage"),
                         tint = stageColor,
                         modifier = Modifier.size(12.dp)
                     )
@@ -456,7 +494,7 @@ fun LeadCard(
                         DropdownMenuItem(
                             text = {
                                 Text(
-                                    text = st.label,
+                                    text = st.localizedLabel(),
                                     fontFamily = FontFamily.Monospace,
                                     fontSize = 12.sp,
                                     color = Color(st.colorHex)

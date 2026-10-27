@@ -1,7 +1,9 @@
 package com.example.data
 
+import androidx.compose.runtime.Composable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.util.tr
 
 enum class LeadStage(val label: String, val colorHex: Long) {
     NEW("Nuevo Lead", 0xFF00E5FF),
@@ -9,7 +11,17 @@ enum class LeadStage(val label: String, val colorHex: Long) {
     QUOTED("Cotizado", 0xFFFFE600),
     NEGOTIATING("Negociación", 0xFFFF6D00),
     CLOSED_WON("Venta Ganada", 0xFF39FF14),
-    CLOSED_LOST("Perdido", 0xFFFF3366)
+    CLOSED_LOST("Perdido", 0xFFFF3366);
+
+    @Composable
+    fun localizedLabel(): String = when (this) {
+        NEW -> tr("Nuevo Lead", "New Lead")
+        CONTACTED -> tr("Contactado", "Contacted")
+        QUOTED -> tr("Cotizado", "Quoted")
+        NEGOTIATING -> tr("Negociación", "Negotiating")
+        CLOSED_WON -> tr("Venta Ganada", "Won Deal")
+        CLOSED_LOST -> tr("Perdido", "Lost")
+    }
 }
 
 @Entity(tableName = "leads")

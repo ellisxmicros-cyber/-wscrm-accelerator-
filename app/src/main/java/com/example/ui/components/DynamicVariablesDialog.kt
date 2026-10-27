@@ -54,6 +54,7 @@ import com.example.ui.theme.NeonCyan
 import com.example.ui.theme.NeonGreen
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextWhite
+import com.example.util.tr
 
 /**
  * Cyberpunk Dynamic Variable Filler Bottom Sheet.
@@ -135,7 +136,7 @@ fun DynamicVariablesDialog(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "// PERSONALIZAR ANTES DE ENVIAR",
+                    text = tr("// PERSONALIZAR ANTES DE ENVIAR", "// CUSTOMIZE BEFORE SENDING"),
                     fontFamily = FontFamily.Monospace,
                     fontSize = 14.5.sp,
                     fontWeight = FontWeight.Bold,
@@ -156,7 +157,7 @@ fun DynamicVariablesDialog(
 
             // Dynamic Variable Fields
             Text(
-                text = "CAMPOS DETECTADOS (${variableNames.size})",
+                text = "${tr("CAMPOS DETECTADOS", "DETECTED FIELDS")} (${variableNames.size})",
                 fontFamily = FontFamily.Monospace,
                 fontSize = 11.sp,
                 color = TextMuted,
@@ -167,12 +168,12 @@ fun DynamicVariablesDialog(
             variableNames.forEach { varName ->
                 val currentValue = variableValues[varName] ?: ""
                 val humanLabel = when (varName.lowercase()) {
-                    "nombre" -> "Nombre del cliente"
-                    "producto" -> "Producto / Servicio"
-                    "precio" -> "Precio o Monto"
-                    "descuento" -> "Porcentaje / Cupón de descuento"
-                    "fecha" -> "Fecha o Día"
-                    else -> "Valor para {$varName}"
+                    "nombre" -> tr("Nombre del cliente", "Client name")
+                    "producto" -> tr("Producto / Servicio", "Product / Service")
+                    "precio" -> tr("Precio o Monto", "Price or Amount")
+                    "descuento" -> tr("Porcentaje / Cupón de descuento", "Discount / Coupon percentage")
+                    "fecha" -> tr("Fecha o Día", "Date or Day")
+                    else -> "${tr("Valor para", "Value for")} {$varName}"
                 }
 
                 OutlinedTextField(
@@ -201,8 +202,8 @@ fun DynamicVariablesDialog(
             OutlinedTextField(
                 value = targetPhone,
                 onValueChange = { targetPhone = it },
-                label = { Text("Teléfono de destino (Opcional)", fontSize = 12.sp, color = TextMuted) },
-                placeholder = { Text("Ej: +58 412 1234567 (o dejar vacío)", fontSize = 12.sp, color = Color.DarkGray) },
+                label = { Text(tr("Teléfono de destino (Opcional)", "Destination Phone (Optional)"), fontSize = 12.sp, color = TextMuted) },
+                placeholder = { Text(tr("Ej: +58 412 1234567 (o dejar vacío)", "e.g. +1 305 1234567 (or leave blank)"), fontSize = 12.sp, color = Color.DarkGray) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 12.dp)
@@ -221,7 +222,7 @@ fun DynamicVariablesDialog(
 
             // Live Preview Box
             Text(
-                text = "VISTA PREVIA DEL MENSAJE",
+                text = tr("VISTA PREVIA DEL MENSAJE", "MESSAGE PREVIEW"),
                 fontFamily = FontFamily.Monospace,
                 fontSize = 11.sp,
                 color = TextMuted,
@@ -273,7 +274,7 @@ fun DynamicVariablesDialog(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "COPIAR",
+                        text = tr("COPIAR", "COPY"),
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp
@@ -307,7 +308,7 @@ fun DynamicVariablesDialog(
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "ENVIAR A WHATSAPP",
+                        text = tr("ENVIAR A WHATSAPP", "SEND TO WHATSAPP"),
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,

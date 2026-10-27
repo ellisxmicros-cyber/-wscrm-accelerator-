@@ -21,7 +21,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Diamond
@@ -78,6 +80,7 @@ import com.example.ui.theme.NeonGreen
 import com.example.ui.theme.NeonPurple
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextWhite
+import com.example.util.tr
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -106,6 +109,11 @@ fun TemplatesScreen(
     isVipUser: Boolean = false,
     onActivateVip: () -> Unit = {},
     onDeleteInteraction: (Long) -> Unit = {},
+    onNavigateToTerms: () -> Unit = {},
+    isEnglish: Boolean = false,
+    onToggleLanguage: () -> Unit = {},
+    onRestoreData: (List<TemplateEntity>, List<com.example.data.LeadEntity>) -> Unit = { _, _ -> },
+    allLeads: List<com.example.data.LeadEntity> = emptyList(),
     modifier: Modifier = Modifier
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -116,19 +124,21 @@ fun TemplatesScreen(
     var isAuthSheetOpen by remember { mutableStateOf(false) }
     var isVipSheetOpen by remember { mutableStateOf(false) }
     var isHistorySheetOpen by remember { mutableStateOf(false) }
+    var isBackupSheetOpen by remember { mutableStateOf(false) }
+    var isAiCopilotOpen by remember { mutableStateOf(false) }
     var isTermsDialogOpen by remember { mutableStateOf(false) }
 
     val categories = listOf(
-        "Todos" to "⚡ Todos",
-        "Sales" to "💰 Ventas",
-        "Support" to "🛠️ Soporte",
-        "Follow-up" to "🔄 Seguimiento",
-        "Precios" to "💲 Precios",
-        "Pagos" to "💳 Pagos",
-        "Info" to "📌 Info",
-        "Saludos" to "👋 Saludos",
-        "Envíos" to "📦 Envíos",
-        "Cierre" to "🎯 Cierre"
+        "Todos" to tr("⚡ Todos", "⚡ All"),
+        "Sales" to tr("💰 Ventas", "💰 Sales"),
+        "Support" to tr("🛠️ Soporte", "🛠️ Support"),
+        "Follow-up" to tr("🔄 Seguimiento", "🔄 Follow-up"),
+        "Precios" to tr("💲 Precios", "💲 Pricing"),
+        "Pagos" to tr("💳 Pagos", "💳 Payments"),
+        "Info" to tr("📌 Info", "📌 Info"),
+        "Saludos" to tr("👋 Saludos", "👋 Greetings"),
+        "Envíos" to tr("📦 Envíos", "📦 Shipping"),
+        "Cierre" to tr("🎯 Cierre", "🎯 Closing")
     )
 
     Scaffold(
@@ -148,15 +158,36 @@ fun TemplatesScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "WS CRM // DASHBOARD",
+                        text = "TURBOVENTAS WS",
                         fontFamily = FontFamily.Monospace,
-                        letterSpacing = 2.sp,
+                        letterSpacing = 1.5.sp,
                         color = NeonCyan,
-                        fontSize = 15.sp,
+                        fontSize = 14.sp,
                         fontWeight = FontWeight.Bold
                     )
                 },
                 actions = {
+                    // 🌐 Selector de Idioma ES / EN (Auto-detectado + cambio en 1 toque)
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(Color(0xFF1A1A28))
+                            .border(1.dp, NeonCyan.copy(alpha = 0.6f), RoundedCornerShape(14.dp))
+                            .clickable { onToggleLanguage() }
+                            .padding(horizontal = 8.dp, vertical = 5.dp)
+                            .testTag("action_toggle_language"),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (isEnglish) "🇺🇸 EN" else "🇪🇸 ES",
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp,
+                            color = NeonCyan
+                        )
+                    }
+
                     // 💎 Botón Planes VIP
                     IconButton(
                         onClick = { isVipSheetOpen = true },
@@ -183,6 +214,50 @@ fun TemplatesScreen(
                         }
                     }
 
+                    // ⚡ Botón Copiloto IA Gemini
+                    IconButton(
+                        onClick = { isAiCopilotOpen = true },
+                        modifier = Modifier.testTag("action_ai_copilot")
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF261238))
+                                .border(1.dp, NeonPurple, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = tr("Copiloto IA Gemini", "Gemini AI Copilot"),
+                                tint = NeonPurple,
+                                modifier = Modifier.size(17.dp)
+                            )
+                        }
+                    }
+
+                    // 💾 Botón Copias de Seguridad & Exportación (JSON / CSV)
+                    IconButton(
+                        onClick = { isBackupSheetOpen = true },
+                        modifier = Modifier.testTag("action_backup_restore")
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .clip(CircleShape)
+                                .background(Color(0xFF1E1E2A))
+                                .border(1.dp, NeonPurple.copy(alpha = 0.6f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CloudUpload,
+                                contentDescription = tr("Copias de Seguridad", "Backup & Restore"),
+                                tint = NeonPurple,
+                                modifier = Modifier.size(17.dp)
+                            )
+                        }
+                    }
+
                     // 📋 Botón Historial de Interacciones
                     IconButton(
                         onClick = { isHistorySheetOpen = true },
@@ -198,7 +273,7 @@ fun TemplatesScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.History,
-                                contentDescription = "Historial de Clientes",
+                                contentDescription = tr("Historial de Clientes", "Client History"),
                                 tint = NeonCyan,
                                 modifier = Modifier.size(18.dp)
                             )
@@ -234,7 +309,10 @@ fun TemplatesScreen(
 
                     // 📜 Botón Términos y Soporte Oficial
                     IconButton(
-                        onClick = { isTermsDialogOpen = true },
+                        onClick = {
+                            onNavigateToTerms()
+                            isTermsDialogOpen = true
+                        },
                         modifier = Modifier.testTag("action_terms_services")
                     ) {
                         Box(
@@ -247,7 +325,7 @@ fun TemplatesScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Info,
-                                contentDescription = "Términos y Soporte",
+                                contentDescription = tr("Términos y Soporte", "Terms & Support"),
                                 tint = Color(0xFF00E5FF),
                                 modifier = Modifier.size(16.dp)
                             )
@@ -272,7 +350,7 @@ fun TemplatesScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.FlashOn,
-                                contentDescription = "Activar burbuja sobre WhatsApp",
+                                contentDescription = tr("Activar burbuja sobre WhatsApp", "Activate bubble over WhatsApp"),
                                 tint = if (isOverlayActive) NeonGreen else TextMuted,
                                 modifier = Modifier.size(20.dp)
                             )
@@ -296,7 +374,7 @@ fun TemplatesScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar plantilla",
+                    contentDescription = tr("Agregar plantilla", "Add template"),
                     modifier = Modifier.size(28.dp),
                     tint = Color.Black
                 )
@@ -321,12 +399,12 @@ fun TemplatesScreen(
             CyberTextField(
                 value = searchQuery,
                 onValueChange = onSearchChange,
-                label = "BUSCADOR EN TIEMPO REAL",
-                placeholder = "BUSCAR PLANTILLA O ATAJO...",
+                label = tr("BUSCADOR EN TIEMPO REAL", "REAL-TIME SEARCH"),
+                placeholder = tr("BUSCAR PLANTILLA O ATAJO...", "SEARCH TEMPLATE OR SHORTCUT..."),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Buscar",
+                        contentDescription = tr("Buscar", "Search"),
                         tint = Color(0xFF00E5FF),
                         modifier = Modifier.size(20.dp)
                     )
@@ -336,7 +414,7 @@ fun TemplatesScreen(
                         IconButton(onClick = { onSearchChange("") }) {
                             Icon(
                                 imageVector = Icons.Default.Clear,
-                                contentDescription = "Limpiar",
+                                contentDescription = tr("Limpiar", "Clear"),
                                 tint = TextMuted,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -379,7 +457,7 @@ fun TemplatesScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "PLANTILLAS RÁPIDAS (${templates.size})",
+                    text = tr("PLANTILLAS RÁPIDAS (${templates.size})", "QUICK TEMPLATES (${templates.size})"),
                     fontFamily = FontFamily.Monospace,
                     color = TextMuted,
                     fontSize = 11.sp,
@@ -387,7 +465,7 @@ fun TemplatesScreen(
                 )
                 if (isOverlayActive) {
                     Text(
-                        text = "● BURBUJA ACTIVA",
+                        text = tr("● BURBUJA ACTIVA", "● BUBBLE ACTIVE"),
                         fontFamily = FontFamily.Monospace,
                         color = NeonGreen,
                         fontSize = 10.sp,
@@ -414,7 +492,7 @@ fun TemplatesScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "No se encontraron plantillas",
+                            text = tr("No se encontraron plantillas", "No templates found"),
                             fontFamily = FontFamily.Monospace,
                             color = TextMuted,
                             fontSize = 13.sp
@@ -422,6 +500,10 @@ fun TemplatesScreen(
                     }
                 }
             } else {
+                val msgDeleted = tr("🗑️ Plantilla eliminada", "🗑️ Template deleted")
+                val undoAction = tr("DESHACER", "UNDO")
+                val copiedMsg = tr("⚡ ¡Plantilla copiada al portapapeles!", "⚡ Template copied to clipboard!")
+
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxSize()
@@ -434,8 +516,8 @@ fun TemplatesScreen(
                                     onDeleteTemplate(currentItem)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            message = "🗑️ Plantilla eliminada: ${currentItem.title}",
-                                            actionLabel = "DESHACER",
+                                            message = "$msgDeleted: ${currentItem.title}",
+                                            actionLabel = undoAction,
                                             duration = SnackbarDuration.Short
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
@@ -465,13 +547,13 @@ fun TemplatesScreen(
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Eliminar plantilla",
+                                            contentDescription = tr("Eliminar plantilla", "Delete template"),
                                             tint = Color.White,
                                             modifier = Modifier.size(22.dp)
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = "ELIMINAR",
+                                            text = tr("ELIMINAR", "DELETE"),
                                             fontFamily = FontFamily.Monospace,
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 11.5.sp,
@@ -487,7 +569,7 @@ fun TemplatesScreen(
                                 onCopy = {
                                     onCopyTemplate(item)
                                     scope.launch {
-                                        snackbarHostState.showSnackbar("⚡ ¡Plantilla copiada al portapapeles!")
+                                        snackbarHostState.showSnackbar(copiedMsg)
                                     }
                                 },
                                 onSendWa = {
@@ -503,8 +585,8 @@ fun TemplatesScreen(
                                     onDeleteTemplate(item)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            message = "🗑️ Plantilla eliminada",
-                                            actionLabel = "DESHACER",
+                                            message = msgDeleted,
+                                            actionLabel = undoAction,
                                             duration = SnackbarDuration.Short
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
@@ -525,6 +607,7 @@ fun TemplatesScreen(
 
     // Modal para variables dinámicas antes de enviar
     customizingTemplate?.let { template ->
+        val msgCopiedPersonalized = tr("⚡ ¡Plantilla personalizada copiada!", "⚡ Personalized template copied!")
         com.example.ui.components.DynamicVariablesDialog(
             template = template,
             onDismissRequest = { customizingTemplate = null },
@@ -535,31 +618,33 @@ fun TemplatesScreen(
             onCopyPersonalized = { personalizedText ->
                 onCopyCustomText(personalizedText)
                 customizingTemplate = null
-                scope.launch { snackbarHostState.showSnackbar("⚡ ¡Plantilla personalizada copiada!") }
+                scope.launch { snackbarHostState.showSnackbar(msgCopiedPersonalized) }
             }
         )
     }
 
     if (isCreatingNew) {
+        val msgSavedSuccess = tr("⚡ Plantilla guardada exitosamente", "⚡ Template saved successfully")
         com.example.ui.components.AddTemplateBottomSheet(
             initialTemplate = null,
             onDismissRequest = { isCreatingNew = false },
             onSaveTemplate = {
                 onSaveTemplate(it)
                 isCreatingNew = false
-                scope.launch { snackbarHostState.showSnackbar("⚡ Plantilla guardada exitosamente") }
+                scope.launch { snackbarHostState.showSnackbar(msgSavedSuccess) }
             }
         )
     }
 
     editingTemplate?.let { template ->
+        val msgUpdatedSuccess = tr("⚡ Plantilla actualizada exitosamente", "⚡ Template updated successfully")
         com.example.ui.components.AddTemplateBottomSheet(
             initialTemplate = template,
             onDismissRequest = { editingTemplate = null },
             onSaveTemplate = { updated ->
                 onSaveTemplate(updated)
                 editingTemplate = null
-                scope.launch { snackbarHostState.showSnackbar("⚡ Plantilla actualizada exitosamente") }
+                scope.launch { snackbarHostState.showSnackbar(msgUpdatedSuccess) }
             }
         )
     }
@@ -575,12 +660,13 @@ fun TemplatesScreen(
     }
 
     if (isVipSheetOpen) {
+        val msgVipSuccess = tr("⭐ ¡Membresía VIP Pro Activada con Éxito!", "⭐ VIP Pro Membership Activated Successfully!")
         com.example.ui.components.VipPlansModalBottomSheet(
             isCurrentVip = isVipUser,
             userId = userSession.userId,
             onActivateVip = {
                 onActivateVip()
-                scope.launch { snackbarHostState.showSnackbar("⭐ ¡Membresía VIP Pro Activada con Éxito!") }
+                scope.launch { snackbarHostState.showSnackbar(msgVipSuccess) }
             },
             onDismissRequest = { isVipSheetOpen = false }
         )
@@ -595,6 +681,41 @@ fun TemplatesScreen(
                 isHistorySheetOpen = false
             },
             onDismissRequest = { isHistorySheetOpen = false }
+        )
+    }
+
+    if (isBackupSheetOpen) {
+        com.example.ui.components.BackupRestoreModalBottomSheet(
+            templates = allTemplates,
+            leads = allLeads,
+            onRestoreData = { resTemplates, resLeads ->
+                onRestoreData(resTemplates, resLeads)
+                isBackupSheetOpen = false
+            },
+            onDismissRequest = { isBackupSheetOpen = false }
+        )
+    }
+
+    if (isAiCopilotOpen) {
+        com.example.ui.components.AiSalesCopilotBottomSheet(
+            onDismissRequest = { isAiCopilotOpen = false },
+            onSaveAsTemplate = { title, content, category ->
+                onSaveTemplate(
+                    TemplateEntity(
+                        title = title,
+                        content = content,
+                        category = category
+                    )
+                )
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        if (isEnglish) "✨ AI Template created successfully" else "✨ Plantilla creada con IA exitosamente"
+                    )
+                }
+            },
+            onUseGeneratedText = { text ->
+                onLaunchWhatsAppWithCustomText(text, "")
+            }
         )
     }
 
@@ -641,7 +762,7 @@ fun TemplateItemCard(
                     if (template.isPinned) {
                         Icon(
                             imageVector = Icons.Default.Star,
-                            contentDescription = "Fijada",
+                            contentDescription = tr("Fijada", "Pinned"),
                             tint = NeonCyan,
                             modifier = Modifier.size(16.dp)
                         )
@@ -667,7 +788,7 @@ fun TemplateItemCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ContentCopy,
-                            contentDescription = "Copiar texto",
+                            contentDescription = tr("Copiar texto", "Copy text"),
                             tint = Color(0xFF00E5FF),
                             modifier = Modifier.size(20.dp)
                         )
@@ -682,7 +803,7 @@ fun TemplateItemCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Send,
-                            contentDescription = "Enviar por WhatsApp",
+                            contentDescription = tr("Enviar por WhatsApp", "Send via WhatsApp"),
                             tint = Color(0xFF39FF14),
                             modifier = Modifier.size(20.dp)
                         )
@@ -694,7 +815,7 @@ fun TemplateItemCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Editar",
+                            contentDescription = tr("Editar", "Edit"),
                             tint = TextMuted,
                             modifier = Modifier.size(15.dp)
                         )
@@ -706,7 +827,7 @@ fun TemplateItemCard(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Eliminar",
+                            contentDescription = tr("Eliminar", "Delete"),
                             tint = Color(0xFFFF3366).copy(alpha = 0.7f),
                             modifier = Modifier.size(15.dp)
                         )
@@ -726,7 +847,7 @@ fun TemplateItemCard(
                 }
                 if (template.usageCount > 0) {
                     Text(
-                        text = "⚡ ${template.usageCount} usos",
+                        text = "⚡ ${template.usageCount} ${tr("usos", "uses")}",
                         fontFamily = FontFamily.Monospace,
                         fontSize = 10.sp,
                         color = TextMuted

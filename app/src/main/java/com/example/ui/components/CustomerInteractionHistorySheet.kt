@@ -48,6 +48,7 @@ import com.example.ui.theme.NeonCyan
 import com.example.ui.theme.NeonGreen
 import com.example.ui.theme.NeonPurple
 import com.example.ui.theme.TextMuted
+import com.example.util.tr
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -107,7 +108,7 @@ fun CustomerInteractionHistorySheet(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "HISTORIAL DE CLIENTES",
+                        text = tr("HISTORIAL DE CLIENTES", "CLIENT INTERACTION HISTORY"),
                         fontFamily = FontFamily.Monospace,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
@@ -124,7 +125,7 @@ fun CustomerInteractionHistorySheet(
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 ) {
                     Text(
-                        text = "${interactions.size} REGISTROS",
+                        text = "${interactions.size} ${tr("REGISTROS", "RECORDS")}",
                         fontFamily = FontFamily.Monospace,
                         fontSize = 10.5.sp,
                         color = NeonCyan,
@@ -134,7 +135,10 @@ fun CustomerInteractionHistorySheet(
             }
 
             Text(
-                text = "Registro local persistente de mensajes y cambios de embudo en Room SQLite",
+                text = tr(
+                    "Registro local persistente de mensajes y cambios de embudo en Room SQLite",
+                    "Persistent local log of messages and pipeline stage changes in Room SQLite"
+                ),
                 fontSize = 11.5.sp,
                 color = TextMuted,
                 modifier = Modifier.padding(top = 4.dp, bottom = 12.dp)
@@ -148,7 +152,10 @@ fun CustomerInteractionHistorySheet(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No hay interacciones registradas aún.\nEnvía plantillas o actualiza leads para comenzar.",
+                        text = tr(
+                            "No hay interacciones registradas aún.\nEnvía plantillas o actualiza leads para comenzar.",
+                            "No logged interactions yet.\nSend templates or update leads to begin."
+                        ),
                         color = TextMuted,
                         fontSize = 13.sp,
                         fontFamily = FontFamily.Monospace,
@@ -189,17 +196,17 @@ private fun InteractionItemRow(
         CustomerInteractionEntity.TYPE_TEMPLATE_SENT -> Triple(
             Icons.Default.Message,
             NeonGreen,
-            "PLANTILLA"
+            tr("PLANTILLA", "TEMPLATE")
         )
         CustomerInteractionEntity.TYPE_STAGE_CHANGE -> Triple(
             Icons.Default.SwapHoriz,
             NeonPurple,
-            "EMBUDO"
+            tr("EMBUDO", "PIPELINE")
         )
         CustomerInteractionEntity.TYPE_NOTE -> Triple(
             Icons.Default.Tune,
             NeonCyan,
-            "NOTA"
+            tr("NOTA", "NOTE")
         )
         else -> Triple(
             Icons.Default.Phone,
@@ -272,7 +279,7 @@ private fun InteractionItemRow(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Eliminar",
+                            contentDescription = tr("Eliminar", "Delete"),
                             tint = Color(0xFFFF3366).copy(alpha = 0.6f),
                             modifier = Modifier.size(15.dp)
                         )

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -23,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Diamond
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Shield
@@ -52,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import com.example.ui.theme.NeonCyan
 import com.example.ui.theme.NeonGreen
 import com.example.ui.theme.TextMuted
+import com.example.util.tr
 
 /**
  * Cyberpunk VIP Plans Modal Bottom Sheet.
@@ -97,87 +100,239 @@ fun VipPlansModalBottomSheet(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header Badge
+            // Header Badge + Botón X de cierre
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(goldColor.copy(alpha = 0.15f))
-                    .border(1.dp, goldColor.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(
-                    imageVector = Icons.Default.Diamond,
-                    contentDescription = null,
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(goldColor.copy(alpha = 0.15f))
+                        .border(1.dp, goldColor.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Diamond,
+                        contentDescription = null,
+                        tint = goldColor,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = tr("MEMBRESÍA VIP // POTENCIA TU WHATSAPP", "VIP MEMBERSHIP // BOOST YOUR WHATSAPP"),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = goldColor,
+                        letterSpacing = 0.8.sp
+                    )
+                }
+
+                CyberCloseButton(
+                    onClick = onDismissRequest,
                     tint = goldColor,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "MEMBRESÍA VIP // POTENCIA TU WHATSAPP",
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 11.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = goldColor,
-                    letterSpacing = 1.sp
+                    borderColor = goldColor.copy(alpha = 0.6f),
+                    sizeDp = 30,
+                    modifier = Modifier.testTag("close_vip_modal_top")
                 )
             }
 
             Spacer(modifier = Modifier.height(10.dp))
 
             Text(
-                text = "Desbloquea el Potencial Ilimitado",
+                text = tr("Desbloquea el Potencial Ilimitado", "Unlock Unlimited Sales Potential"),
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
                 color = Color.White
             )
 
             Text(
-                text = "Automatiza tus ventas y ahorra hasta 3 horas al día respondiendo a clientes",
+                text = tr(
+                    "Automatiza tus ventas y ahorra hasta 3 horas al día respondiendo a clientes",
+                    "Automate your sales and save up to 3 hours a day replying to customers"
+                ),
                 fontSize = 12.5.sp,
                 color = TextMuted,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                 modifier = Modifier.padding(top = 4.dp, bottom = 16.dp)
             )
 
-            // Billing Period Toggle (Mensual vs Anual con Descuento)
+            // ==========================================
+            // SELECCIÓN VISUAL DE PLANES (PRECIOS GRANDES Y CLAROS CON X)
+            // ==========================================
             Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(Color(0xFF161622))
-                    .border(1.dp, Color(0xFF2A2A3D), RoundedCornerShape(24.dp))
-                    .padding(4.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                // Tarjeta 1: Plan Mensual
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(if (!isYearly) NeonCyan else Color.Transparent)
+                        .weight(1f)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(if (!isYearly) Color(0xFF132238) else Color(0xFF14141E))
+                        .border(
+                            width = if (!isYearly) 2.dp else 1.dp,
+                            color = if (!isYearly) NeonCyan else Color(0xFF282838),
+                            shape = RoundedCornerShape(14.dp)
+                        )
                         .clickable { isYearly = false }
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(12.dp)
                 ) {
-                    Text(
-                        text = "Mensual",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.5.sp,
-                        color = if (!isYearly) Color.Black else TextMuted
+                    CyberCloseButton(
+                        onClick = onDismissRequest,
+                        tint = NeonCyan,
+                        borderColor = NeonCyan.copy(alpha = 0.5f),
+                        sizeDp = 22,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .testTag("close_monthly_plan_box")
                     )
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                    ) {
+                        Text(
+                            text = tr("PLAN MENSUAL", "MONTHLY PLAN"),
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                            color = if (!isYearly) NeonCyan else TextMuted
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                text = "$4.99",
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 22.sp,
+                                color = Color.White
+                            )
+                            Text(
+                                text = " USD",
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp,
+                                color = Color(0xFF00E5FF),
+                                modifier = Modifier.padding(bottom = 2.dp)
+                            )
+                        }
+                        Text(
+                            text = tr("por mes", "per month"),
+                            fontSize = 11.sp,
+                            color = TextMuted
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(if (!isYearly) NeonCyan.copy(alpha = 0.2f) else Color(0xFF20202E))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = if (!isYearly) tr("✓ SELECCIONADO", "✓ SELECTED") else tr("Elegir Mensual", "Choose Monthly"),
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (!isYearly) NeonCyan else Color.Gray
+                            )
+                        }
+                    }
                 }
 
+                // Tarjeta 2: Plan Anual VIP
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(if (isYearly) goldColor else Color.Transparent)
-                        .clickable { isYearly = true }
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            text = "Anual (Ahorra 35%)",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.5.sp,
-                            color = if (isYearly) Color.Black else TextMuted
+                        .weight(1f)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(if (isYearly) Color(0xFF2E2410) else Color(0xFF14141E))
+                        .border(
+                            width = if (isYearly) 2.dp else 1.dp,
+                            color = if (isYearly) goldColor else Color(0xFF282838),
+                            shape = RoundedCornerShape(14.dp)
                         )
+                        .clickable { isYearly = true }
+                        .padding(12.dp)
+                ) {
+                    CyberCloseButton(
+                        onClick = onDismissRequest,
+                        tint = goldColor,
+                        borderColor = goldColor.copy(alpha = 0.6f),
+                        sizeDp = 22,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .testTag("close_yearly_plan_box")
+                    )
+
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(goldColor)
+                                .padding(horizontal = 6.dp, vertical = 1.dp)
+                        ) {
+                            Text(
+                                text = tr("AHORRA 35% 🔥", "SAVE 35% 🔥"),
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 8.5.sp,
+                                color = Color.Black
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(3.dp))
+                        Text(
+                            text = "PLAN ANUAL VIP",
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                            color = if (isYearly) goldColor else TextMuted
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                text = "$39.99",
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 22.sp,
+                                color = goldColor
+                            )
+                            Text(
+                                text = " USD",
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 11.sp,
+                                color = goldColor,
+                                modifier = Modifier.padding(bottom = 2.dp)
+                            )
+                        }
+                        Text(
+                            text = "por año ($3.33/mes)",
+                            fontSize = 10.5.sp,
+                            color = TextMuted
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(if (isYearly) goldColor.copy(alpha = 0.25f) else Color(0xFF20202E))
+                                .padding(horizontal = 8.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = if (isYearly) "★ SELECCIONADO" else "Elegir Anual",
+                                fontSize = 9.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isYearly) goldColor else Color.Gray
+                            )
+                        }
                     }
                 }
             }
@@ -198,41 +353,72 @@ fun VipPlansModalBottomSheet(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.FlashOn,
-                            contentDescription = null,
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.FlashOn,
+                                contentDescription = null,
+                                tint = goldColor,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "ACTIVAR LICENCIA PRO ⚡",
+                                fontFamily = FontFamily.Monospace,
+                                fontWeight = FontWeight.Black,
+                                fontSize = 16.sp,
+                                color = goldColor,
+                                letterSpacing = 0.8.sp
+                            )
+                        }
+
+                        CyberCloseButton(
+                            onClick = onDismissRequest,
                             tint = goldColor,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "ACTIVAR LICENCIA PRO ⚡",
-                            fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.Black,
-                            fontSize = 17.sp,
-                            color = goldColor,
-                            letterSpacing = 1.sp
+                            borderColor = goldColor.copy(alpha = 0.6f),
+                            sizeDp = 26,
+                            modifier = Modifier.testTag("close_activate_pro_box")
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(
-                        text = if (isYearly) "$39.99 / año (Ahorras 35%)" else "$4.99 / mes",
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        color = Color.White
-                    )
+                    val activePrice = if (isYearly) "$39.99 USD" else "$4.99 USD"
+
+                    // Banner de Resumen de Monto Seleccionado
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF1F1B2C))
+                            .border(1.dp, goldColor.copy(alpha = 0.5f), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (isYearly) "PLAN: ANUAL VIP (35% OFF)" else "PLAN: MENSUAL FLEXIBLE",
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.5.sp,
+                            color = if (isYearly) goldColor else NeonCyan
+                        )
+                        Text(
+                            text = "TOTAL: $activePrice",
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 15.sp,
+                            color = Color(0xFFFFD700)
+                        )
+                    }
 
                     Text(
                         text = "Selecciona tu método de pago preferido para activar:",
                         fontSize = 11.5.sp,
                         color = TextMuted,
-                        modifier = Modifier.padding(top = 2.dp, bottom = 14.dp)
+                        modifier = Modifier.padding(top = 10.dp, bottom = 12.dp)
                     )
 
                     var selectedPaymentMethod by remember { mutableStateOf<String?>(null) }
@@ -241,7 +427,6 @@ fun VipPlansModalBottomSheet(
 
                     val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
                     val context = androidx.compose.ui.platform.LocalContext.current
-                    val activePrice = if (isYearly) "$39.99 USD" else "$4.99 USD"
 
                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         // 1. 🍋 Lemon Squeezy / Suscripción Recurrente Automática (RECOMENDADO)
@@ -251,9 +436,17 @@ fun VipPlansModalBottomSheet(
                             subtitle = "Tarjeta de Crédito/Débito • Factura Automática",
                             isSelected = selectedPaymentMethod == "lemonsqueezy",
                             badgeText = "AUTOMÁTICO ⚡",
+                            priceBadge = activePrice,
                             accentColor = Color(0xFFFFD000),
                             onClick = {
                                 selectedPaymentMethod = if (selectedPaymentMethod == "lemonsqueezy") null else "lemonsqueezy"
+                            },
+                            onClose = {
+                                if (selectedPaymentMethod == "lemonsqueezy") {
+                                    selectedPaymentMethod = null
+                                } else {
+                                    onDismissRequest()
+                                }
                             },
                             expandedContent = {
                                 Column(
@@ -264,17 +457,29 @@ fun VipPlansModalBottomSheet(
                                         .border(1.dp, Color(0xFF262636), RoundedCornerShape(8.dp))
                                         .padding(12.dp)
                                 ) {
-                                    Text(
-                                        text = "PASARELA 100% AUTOMATIZADA",
-                                        fontFamily = FontFamily.Monospace,
-                                        fontSize = 10.sp,
-                                        color = Color(0xFFFFD000)
-                                    )
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "PASARELA 100% AUTOMATIZADA",
+                                            fontFamily = FontFamily.Monospace,
+                                            fontSize = 10.sp,
+                                            color = Color(0xFFFFD000)
+                                        )
+                                        CyberCloseButton(
+                                            onClick = { selectedPaymentMethod = null },
+                                            tint = Color(0xFFFFD000),
+                                            borderColor = Color(0xFFFFD000).copy(alpha = 0.5f),
+                                            sizeDp = 22
+                                        )
+                                    }
                                     Text(
                                         text = "El cobro se procesa en línea con Tarjeta Visa/Mastercard o Google Pay. La pasarela emite la factura legal a tu correo y activa la licencia sin esperas.",
                                         fontSize = 11.5.sp,
                                         color = TextMuted,
-                                        modifier = Modifier.padding(top = 2.dp, bottom = 10.dp)
+                                        modifier = Modifier.padding(top = 4.dp, bottom = 10.dp)
                                     )
                                     Button(
                                         onClick = {
@@ -287,20 +492,29 @@ fun VipPlansModalBottomSheet(
                                         },
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(44.dp),
+                                            .heightIn(min = 52.dp),
                                         shape = RoundedCornerShape(8.dp),
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = Color(0xFFFFD000),
                                             contentColor = Color.Black
                                         )
                                     ) {
-                                        Text(
-                                            text = "🚀 ABRIR CHECKOUT SEGURO ($activePrice)",
-                                            fontFamily = FontFamily.Monospace,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 12.sp,
-                                            color = Color.Black
-                                        )
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text(
+                                                text = "🚀 ABRIR CHECKOUT SEGURO",
+                                                fontFamily = FontFamily.Monospace,
+                                                fontWeight = FontWeight.Black,
+                                                fontSize = 13.sp,
+                                                color = Color.Black
+                                            )
+                                            Text(
+                                                text = "Monto a Pagar: $activePrice",
+                                                fontFamily = FontFamily.Monospace,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 11.sp,
+                                                color = Color.Black.copy(alpha = 0.85f)
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -313,28 +527,37 @@ fun VipPlansModalBottomSheet(
                             subtitle = "Pago Seguro y Facturación Directa",
                             isSelected = selectedPaymentMethod == "paypal",
                             badgeText = "GLOBAL",
+                            priceBadge = activePrice,
                             accentColor = Color(0xFF0079C1),
                             onClick = {
                                 selectedPaymentMethod = if (selectedPaymentMethod == "paypal") null else "paypal"
                             },
+                            onClose = {
+                                if (selectedPaymentMethod == "paypal") {
+                                    selectedPaymentMethod = null
+                                } else {
+                                    onDismissRequest()
+                                }
+                            },
                             expandedContent = {
                                 PaymentDetailExpanded(
-                                    dataTitle = "ENLACE DIRECTO PAYPAL",
-                                    dataValue = "paypal.me/wscrm",
-                                    alias = "Cuenta Oficial: pagos.paypal@wscrm.app",
+                                    dataTitle = "CORREO PAYPAL OFICIAL",
+                                    dataValue = "ellisxmicros@gmail.com",
+                                    alias = "Cuenta Oficial: ellisxmicros@gmail.com",
                                     amount = activePrice,
                                     accentColor = Color(0xFF0079C1),
                                     onCopy = {
-                                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString("https://paypal.me/wscrm"))
-                                        copiedNotice = "¡Enlace PayPal copiado!"
+                                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString("ellisxmicros@gmail.com"))
+                                        copiedNotice = "¡Correo PayPal copiado!"
                                     },
                                     onOpenReferenceModal = {
                                         activePaymentModal = SelectedPaymentConfig(
                                             metodo = "PayPal",
-                                            datosPago = "https://paypal.me/wscrm",
+                                            datosPago = "ellisxmicros@gmail.com",
                                             colorNeon = Color(0xFF0079C1)
                                         )
-                                    }
+                                    },
+                                    onCloseExpanded = { selectedPaymentMethod = null }
                                 )
                             }
                         )
@@ -346,28 +569,37 @@ fun VipPlansModalBottomSheet(
                             subtitle = "USDT - Cero comisión",
                             isSelected = selectedPaymentMethod == "binance",
                             badgeText = "CRIPTOMONEDA",
+                            priceBadge = activePrice,
                             accentColor = Color(0xFFF3BA2F),
                             onClick = {
                                 selectedPaymentMethod = if (selectedPaymentMethod == "binance") null else "binance"
                             },
+                            onClose = {
+                                if (selectedPaymentMethod == "binance") {
+                                    selectedPaymentMethod = null
+                                } else {
+                                    onDismissRequest()
+                                }
+                            },
                             expandedContent = {
                                 PaymentDetailExpanded(
-                                    dataTitle = "BINANCE PAY ID",
-                                    dataValue = "829371042",
-                                    alias = "Alias: WSCRM_PRO",
+                                    dataTitle = "BINANCE PAY EMAIL",
+                                    dataValue = "ellisxmicros@gmail.com",
+                                    alias = "Alias: Binance Pay Oficial",
                                     amount = activePrice,
                                     accentColor = Color(0xFFF3BA2F),
                                     onCopy = {
-                                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString("829371042"))
-                                        copiedNotice = "¡ID de Binance Pay copiado!"
+                                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString("ellisxmicros@gmail.com"))
+                                        copiedNotice = "¡Correo de Binance Pay copiado!"
                                     },
                                     onOpenReferenceModal = {
                                         activePaymentModal = SelectedPaymentConfig(
                                             metodo = "Binance Pay",
-                                            datosPago = "829371042 (ID Binance)",
+                                            datosPago = "ellisxmicros@gmail.com (Binance)",
                                             colorNeon = Color(0xFFF3BA2F)
                                         )
-                                    }
+                                    },
+                                    onCloseExpanded = { selectedPaymentMethod = null }
                                 )
                             }
                         )
@@ -379,28 +611,37 @@ fun VipPlansModalBottomSheet(
                             subtitle = "USD Directo",
                             isSelected = selectedPaymentMethod == "zelle",
                             badgeText = "EE.UU.",
+                            priceBadge = activePrice,
                             accentColor = Color(0xFF7414CA),
                             onClick = {
                                 selectedPaymentMethod = if (selectedPaymentMethod == "zelle") null else "zelle"
                             },
+                            onClose = {
+                                if (selectedPaymentMethod == "zelle") {
+                                    selectedPaymentMethod = null
+                                } else {
+                                    onDismissRequest()
+                                }
+                            },
                             expandedContent = {
                                 PaymentDetailExpanded(
                                     dataTitle = "CORREO ZELLE",
-                                    dataValue = "pagos.wscrm@gmail.com",
-                                    alias = "Titular: WS CRM Enterprise LLC",
+                                    dataValue = "ellisxmicros@gmail.com",
+                                    alias = "Titular: WS CRM Enterprise",
                                     amount = activePrice,
                                     accentColor = Color(0xFF9D4EDD),
                                     onCopy = {
-                                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString("pagos.wscrm@gmail.com"))
+                                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString("ellisxmicros@gmail.com"))
                                         copiedNotice = "¡Correo de Zelle copiado!"
                                     },
                                     onOpenReferenceModal = {
                                         activePaymentModal = SelectedPaymentConfig(
                                             metodo = "Zelle",
-                                            datosPago = "pagos.wscrm@gmail.com (WS CRM LLC)",
+                                            datosPago = "ellisxmicros@gmail.com",
                                             colorNeon = Color(0xFF9D4EDD)
                                         )
-                                    }
+                                    },
+                                    onCloseExpanded = { selectedPaymentMethod = null }
                                 )
                             }
                         )
@@ -409,31 +650,40 @@ fun VipPlansModalBottomSheet(
                         PaymentMethodCard(
                             emoji = "💳",
                             title = "Zinli",
-                            subtitle = "Visa USD Prepago",
+                            subtitle = "Transferencia Instantánea • 0% Comisión",
                             isSelected = selectedPaymentMethod == "zinli",
-                            badgeText = "VISA PREPAGO",
+                            badgeText = "⭐ RECOMENDADO",
+                            priceBadge = activePrice,
                             accentColor = Color(0xFF00E5FF),
                             onClick = {
                                 selectedPaymentMethod = if (selectedPaymentMethod == "zinli") null else "zinli"
                             },
+                            onClose = {
+                                if (selectedPaymentMethod == "zinli") {
+                                    selectedPaymentMethod = null
+                                } else {
+                                    onDismissRequest()
+                                }
+                            },
                             expandedContent = {
                                 PaymentDetailExpanded(
-                                    dataTitle = "CORREO ZINLI",
-                                    dataValue = "pagos.zinli@wscrm.app",
-                                    alias = "Titular: WS CRM Corp",
+                                    dataTitle = "CORREO ZINLI OFICIAL",
+                                    dataValue = "ellisxmicros@gmail.com",
+                                    alias = "Titular: Cuenta Zinli Verificada",
                                     amount = activePrice,
                                     accentColor = Color(0xFF00E5FF),
                                     onCopy = {
-                                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString("pagos.zinli@wscrm.app"))
-                                        copiedNotice = "¡Correo Zinli copiado!"
+                                        clipboardManager.setText(androidx.compose.ui.text.AnnotatedString("ellisxmicros@gmail.com"))
+                                        copiedNotice = "¡Correo Zinli copiado: ellisxmicros@gmail.com!"
                                     },
                                     onOpenReferenceModal = {
                                         activePaymentModal = SelectedPaymentConfig(
                                             metodo = "Zinli",
-                                            datosPago = "pagos.zinli@wscrm.app",
+                                            datosPago = "ellisxmicros@gmail.com",
                                             colorNeon = Color(0xFF00E5FF)
                                         )
-                                    }
+                                    },
+                                    onCloseExpanded = { selectedPaymentMethod = null }
                                 )
                             }
                         )
@@ -460,7 +710,7 @@ fun VipPlansModalBottomSheet(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp)
+                            .height(50.dp)
                             .testTag("activate_vip_button"),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
@@ -476,9 +726,9 @@ fun VipPlansModalBottomSheet(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = if (isCurrentVip) "PLAN VIP PRO ACTIVO ⭐" else "VALIDAR Y ACTIVAR PRO",
+                            text = if (isCurrentVip) "PLAN VIP PRO ACTIVO ⭐" else "VALIDAR Y ACTIVAR PRO ($activePrice)",
                             fontFamily = FontFamily.Monospace,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.Black,
                             fontSize = 13.sp,
                             color = Color.Black
                         )
@@ -565,7 +815,7 @@ fun VipPlansModalBottomSheet(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = "BENEFICIOS VIP INCLUIDOS",
@@ -588,6 +838,14 @@ fun VipPlansModalBottomSheet(
                                 color = TextMuted
                             )
                         }
+
+                        CyberCloseButton(
+                            onClick = onDismissRequest,
+                            tint = goldColor,
+                            borderColor = goldColor.copy(alpha = 0.5f),
+                            sizeDp = 24,
+                            modifier = Modifier.testTag("close_vip_benefits_box")
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -630,6 +888,16 @@ fun VipPlansModalBottomSheet(
                         .border(1.dp, Color(0xFF2A2A3D), RoundedCornerShape(10.dp))
                         .padding(12.dp)
                 ) {
+                    CyberCloseButton(
+                        onClick = onDismissRequest,
+                        tint = Color.White,
+                        borderColor = Color(0xFF3A3A52),
+                        sizeDp = 20,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .testTag("close_free_plan_box")
+                    )
+
                     Column {
                         Text(
                             text = "GRATIS",
@@ -655,6 +923,16 @@ fun VipPlansModalBottomSheet(
                         .border(1.dp, NeonCyan.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
                         .padding(12.dp)
                 ) {
+                    CyberCloseButton(
+                        onClick = onDismissRequest,
+                        tint = NeonCyan,
+                        borderColor = NeonCyan.copy(alpha = 0.5f),
+                        sizeDp = 20,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .testTag("close_team_plan_box")
+                    )
+
                     Column {
                         Text(
                             text = "AGENCIA / TEAM",
@@ -674,6 +952,33 @@ fun VipPlansModalBottomSheet(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CyberCloseButton(
+    onClick: () -> Unit,
+    tint: Color = Color.White,
+    borderColor: Color = Color(0xFF3A3A52),
+    backgroundColor: Color = Color(0xFF1E1E2E),
+    sizeDp: Int = 26,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(sizeDp.dp)
+            .clip(CircleShape)
+            .background(backgroundColor)
+            .border(1.dp, borderColor, CircleShape)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Close,
+            contentDescription = "Cerrar",
+            tint = tint,
+            modifier = Modifier.size((sizeDp * 0.58f).dp)
+        )
     }
 }
 
@@ -705,8 +1010,10 @@ private fun PaymentMethodCard(
     subtitle: String,
     isSelected: Boolean,
     badgeText: String,
+    priceBadge: String,
     accentColor: Color,
     onClick: () -> Unit,
+    onClose: () -> Unit = {},
     expandedContent: @Composable () -> Unit
 ) {
     Column(
@@ -727,7 +1034,10 @@ private fun PaymentMethodCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(text = emoji, fontSize = 20.sp)
                 Spacer(modifier = Modifier.width(10.dp))
                 Column {
@@ -746,19 +1056,41 @@ private fun PaymentMethodCard(
                 }
             }
 
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(accentColor.copy(alpha = 0.15f))
-                    .border(1.dp, accentColor.copy(alpha = 0.5f), RoundedCornerShape(6.dp))
-                    .padding(horizontal = 7.dp, vertical = 2.dp)
-            ) {
-                Text(
-                    text = badgeText,
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 9.5.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = accentColor
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(horizontalAlignment = Alignment.End) {
+                    // Etiqueta destacada del Precio
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color(0xFF222234))
+                            .border(1.dp, Color(0xFFFFD700).copy(alpha = 0.7f), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = priceBadge,
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFFFFD700)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text(
+                        text = badgeText,
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = accentColor
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                CyberCloseButton(
+                    onClick = onClose,
+                    tint = if (isSelected) accentColor else TextMuted,
+                    borderColor = if (isSelected) accentColor.copy(alpha = 0.6f) else Color(0xFF3A3A52),
+                    sizeDp = 24
                 )
             }
         }
@@ -784,7 +1116,8 @@ private fun PaymentDetailExpanded(
     amount: String,
     accentColor: Color,
     onCopy: () -> Unit,
-    onOpenReferenceModal: () -> Unit
+    onOpenReferenceModal: () -> Unit,
+    onCloseExpanded: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -794,26 +1127,47 @@ private fun PaymentDetailExpanded(
             .border(1.dp, Color(0xFF262636), RoundedCornerShape(8.dp))
             .padding(12.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+        // Banner de Monto Exacto a Transferir + Botón X
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(6.dp))
+                .background(Color(0xFF231C0E))
+                .border(1.dp, Color(0xFFFFD700).copy(alpha = 0.6f), RoundedCornerShape(6.dp))
+                .padding(horizontal = 12.dp, vertical = 8.dp)
         ) {
-            Text(
-                text = "MONTO A TRANSFERIR:",
-                fontFamily = FontFamily.Monospace,
-                fontSize = 10.5.sp,
-                color = TextMuted
-            )
-            Text(
-                text = amount,
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                color = Color(0xFFFFD700)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "TOTAL A TRANSFERIR:",
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFFD700)
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = amount,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 16.sp,
+                        color = Color(0xFFFFD700)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    CyberCloseButton(
+                        onClick = onCloseExpanded,
+                        tint = Color(0xFFFFD700),
+                        borderColor = Color(0xFFFFD700).copy(alpha = 0.6f),
+                        sizeDp = 22
+                    )
+                }
+            }
         }
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(
             text = dataTitle,

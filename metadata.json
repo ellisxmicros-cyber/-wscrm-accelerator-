@@ -1,6 +1,6 @@
 {
-  "name": "WS Companion",
-  "description": "Cyberpunk WhatsApp CRM & Sales Companion with floating overlay bubble, quick sales templates, CRM pipeline, and direct chat.",
+  "name": "TurboVentas WS",
+  "description": "Cyberpunk WhatsApp CRM & Sales Companion with Gemini AI sales copywriter, floating overlay bubble, quick sales templates, CRM pipeline, and direct chat.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

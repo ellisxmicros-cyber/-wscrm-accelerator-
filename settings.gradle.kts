@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "WS Companion"
+rootProject.name = "TurboVentas WS"
 
 include(":app")

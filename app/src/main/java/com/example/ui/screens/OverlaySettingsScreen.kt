@@ -1,7 +1,9 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,12 +21,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BatteryChargingFull
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FlashOn
+import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Translate
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,8 +57,10 @@ import com.example.ui.theme.CyberBorder
 import com.example.ui.theme.CyberCardVariant
 import com.example.ui.theme.NeonCyan
 import com.example.ui.theme.NeonGreen
+import com.example.ui.theme.NeonPurple
 import com.example.ui.theme.TextMuted
 import com.example.ui.theme.TextWhite
+import com.example.util.tr
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +69,8 @@ fun OverlaySettingsScreen(
     isInAppBubbleActive: Boolean,
     hasOverlayPermission: Boolean,
     isBatteryOptimized: Boolean,
+    isEnglish: Boolean = false,
+    onSelectLanguage: (Boolean) -> Unit = {},
     onToggleSystemOverlay: () -> Unit,
     onToggleInAppBubble: () -> Unit,
     onRequestPermission: () -> Unit,
@@ -77,7 +86,7 @@ fun OverlaySettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "BURBUJA FLOTANTE // CONFIG",
+                        text = tr("TURBOVENTAS // AJUSTES & BURBUJA", "TURBOVENTAS // SETTINGS & BUBBLE"),
                         fontFamily = FontFamily.Monospace,
                         letterSpacing = 2.sp,
                         color = NeonGreen,
@@ -98,6 +107,181 @@ fun OverlaySettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
+            // 🌐 SECTION 1: LANGUAGE SWITCHER (SETTINGS)
+            CyberCard(
+                borderColor = NeonCyan,
+                modifier = Modifier.testTag("language_switcher_card")
+            ) {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(NeonCyan.copy(alpha = 0.15f))
+                                    .border(1.dp, NeonCyan, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Language,
+                                    contentDescription = null,
+                                    tint = NeonCyan,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = tr("IDIOMA DE LA APLICACIÓN", "APPLICATION LANGUAGE"),
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = FontWeight.Bold,
+                                    color = NeonCyan,
+                                    fontSize = 13.sp,
+                                    letterSpacing = 1.sp
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = tr(
+                                        "Alterna toda la interfaz entre Español e Inglés",
+                                        "Toggle entire UI between Spanish and English"
+                                    ),
+                                    fontSize = 11.5.sp,
+                                    color = TextMuted
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Segmented Language Options (ES / EN)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        // Option 1: Español
+                        val esBorderColor by animateColorAsState(
+                            targetValue = if (!isEnglish) NeonGreen else CyberBorder,
+                            label = "esBorder"
+                        )
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(if (!isEnglish) NeonGreen.copy(alpha = 0.12f) else CyberCardVariant)
+                                .border(1.5.dp, esBorderColor, RoundedCornerShape(10.dp))
+                                .clickable { onSelectLanguage(false) }
+                                .padding(vertical = 12.dp, horizontal = 10.dp)
+                                .testTag("language_option_es"),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "🇪🇸 Español",
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = if (!isEnglish) FontWeight.Bold else FontWeight.Normal,
+                                    fontSize = 13.sp,
+                                    color = if (!isEnglish) NeonGreen else TextMuted
+                                )
+                                if (!isEnglish) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = NeonGreen,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Option 2: English
+                        val enBorderColor by animateColorAsState(
+                            targetValue = if (isEnglish) NeonCyan else CyberBorder,
+                            label = "enBorder"
+                        )
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(if (isEnglish) NeonCyan.copy(alpha = 0.12f) else CyberCardVariant)
+                                .border(1.5.dp, enBorderColor, RoundedCornerShape(10.dp))
+                                .clickable { onSelectLanguage(true) }
+                                .padding(vertical = 12.dp, horizontal = 10.dp)
+                                .testTag("language_option_en"),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = "🇺🇸 English",
+                                    fontFamily = FontFamily.Monospace,
+                                    fontWeight = if (isEnglish) FontWeight.Bold else FontWeight.Normal,
+                                    fontSize = 13.sp,
+                                    color = if (isEnglish) NeonCyan else TextMuted
+                                )
+                                if (isEnglish) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = NeonCyan,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Status Indicator
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0xFF0F0F18))
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = if (isEnglish)
+                                "🌐 SELECTED: ENGLISH (US/GLOBAL)"
+                            else
+                                "🌐 SELECCIONADO: ESPAÑOL (ES/LATAM)",
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isEnglish) NeonCyan else NeonGreen
+                        )
+                        Switch(
+                            checked = isEnglish,
+                            onCheckedChange = { onSelectLanguage(it) },
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color(0xFF0A0A0E),
+                                checkedTrackColor = NeonCyan,
+                                uncheckedThumbColor = Color(0xFF0A0A0E),
+                                uncheckedTrackColor = NeonGreen
+                            ),
+                            modifier = Modifier.testTag("language_quick_switch")
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Visual Bubble Graphic Card
             CyberCard(
                 borderColor = if (isSystemOverlayRunning || isInAppBubbleActive) NeonGreen else CyberBorder
@@ -129,7 +313,10 @@ fun OverlaySettingsScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = if (isSystemOverlayRunning || isInAppBubbleActive) "BURBUJA FLOTANTE ACTIVA" else "BURBUJA FLOTANTE INACTIVA",
+                        text = if (isSystemOverlayRunning || isInAppBubbleActive)
+                            tr("BURBUJA FLOTANTE ACTIVA", "FLOATING BUBBLE ACTIVE")
+                        else
+                            tr("BURBUJA FLOTANTE INACTIVA", "FLOATING BUBBLE INACTIVE"),
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                         color = if (isSystemOverlayRunning || isInAppBubbleActive) NeonGreen else TextMuted,
@@ -138,7 +325,10 @@ fun OverlaySettingsScreen(
 
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Accede a tus plantillas de venta sin salir de WhatsApp",
+                        text = tr(
+                            "Accede a tus plantillas de venta sin salir de WhatsApp",
+                            "Access your sales templates without leaving WhatsApp"
+                        ),
                         fontSize = 12.sp,
                         color = TextMuted
                     )
@@ -157,7 +347,7 @@ fun OverlaySettingsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "Burbuja del Sistema (Android)",
+                                text = tr("Burbuja del Sistema (Android)", "System Overlay Bubble (Android)"),
                                 fontFamily = FontFamily.Monospace,
                                 fontWeight = FontWeight.Bold,
                                 color = TextWhite,
@@ -165,7 +355,10 @@ fun OverlaySettingsScreen(
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "Flota sobre WhatsApp, Telegram, Instagram y cualquier otra app.",
+                                text = tr(
+                                    "Flota sobre WhatsApp, Telegram, Instagram y cualquier otra app.",
+                                    "Floats on top of WhatsApp, Telegram, Instagram and any other app."
+                                ),
                                 fontSize = 12.sp,
                                 color = TextMuted
                             )
@@ -208,7 +401,10 @@ fun OverlaySettingsScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = if (hasOverlayPermission) "Permiso 'Mostrar sobre apps' CONCEDIDO" else "Permiso de superposición requerido",
+                                text = if (hasOverlayPermission)
+                                    tr("Permiso 'Mostrar sobre apps' CONCEDIDO", "'Display over other apps' GRANTED")
+                                else
+                                    tr("Permiso de superposición requerido", "Overlay permission required"),
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 10.5.sp,
                                 color = if (hasOverlayPermission) NeonGreen else Color(0xFFFFE600)
@@ -217,7 +413,7 @@ fun OverlaySettingsScreen(
 
                         if (!hasOverlayPermission) {
                             NeonOutlinedButton(
-                                text = "AJUSTES",
+                                text = tr("AJUSTES", "SETTINGS"),
                                 color = Color(0xFFFFE600),
                                 icon = Icons.Default.OpenInNew,
                                 onClick = onRequestPermission,
@@ -234,7 +430,7 @@ fun OverlaySettingsScreen(
             CyberCard {
                 Column {
                     Text(
-                        text = "PERMISOS DE EJECUCIÓN EN SEGUNDO PLANO",
+                        text = tr("PERMISOS DE EJECUCIÓN EN SEGUNDO PLANO", "BACKGROUND EXECUTION PERMISSIONS"),
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                         color = NeonCyan,
@@ -244,7 +440,10 @@ fun OverlaySettingsScreen(
 
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "Evita que Android o el fabricante (Xiaomi, Samsung, etc.) cierren la burbuja cuando chateas en WhatsApp.",
+                        text = tr(
+                            "Evita que Android o el fabricante (Xiaomi, Samsung, etc.) cierren la burbuja cuando chateas en WhatsApp.",
+                            "Prevents Android or OEM (Xiaomi, Samsung, etc.) from closing the bubble while chatting in WhatsApp."
+                        ),
                         fontSize = 12.sp,
                         color = TextMuted
                     )
@@ -271,7 +470,7 @@ fun OverlaySettingsScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Optimización de Batería",
+                                    text = tr("Optimización de Batería", "Battery Optimization"),
                                     fontFamily = FontFamily.Monospace,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 12.sp,
@@ -280,7 +479,10 @@ fun OverlaySettingsScreen(
                             }
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = if (isBatteryOptimized) "Sin restricciones (Activo)" else "Restringido por el sistema",
+                                text = if (isBatteryOptimized)
+                                    tr("Sin restricciones (Activo)", "Unrestricted (Active)")
+                                else
+                                    tr("Restringido por el sistema", "Restricted by system"),
                                 fontFamily = FontFamily.Monospace,
                                 fontSize = 10.5.sp,
                                 color = if (isBatteryOptimized) NeonGreen else Color(0xFFFFE600)
@@ -288,7 +490,7 @@ fun OverlaySettingsScreen(
                         }
 
                         NeonOutlinedButton(
-                            text = if (isBatteryOptimized) "LISTO" else "IGNORAR",
+                            text = if (isBatteryOptimized) tr("LISTO", "READY") else tr("IGNORAR", "BYPASS"),
                             color = if (isBatteryOptimized) NeonGreen else Color(0xFFFFE600),
                             onClick = onRequestBatteryBypass,
                             testTag = "request_battery_bypass_btn"
@@ -317,7 +519,7 @@ fun OverlaySettingsScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Inicio Automático (OEM)",
+                                    text = tr("Inicio Automático (OEM)", "Autostart Settings (OEM)"),
                                     fontFamily = FontFamily.Monospace,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 12.sp,
@@ -334,7 +536,7 @@ fun OverlaySettingsScreen(
                         }
 
                         NeonOutlinedButton(
-                            text = "ABRIR",
+                            text = tr("ABRIR", "OPEN"),
                             color = NeonCyan,
                             icon = Icons.Default.OpenInNew,
                             onClick = onOpenAutostartSettings,
@@ -355,7 +557,7 @@ fun OverlaySettingsScreen(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Simulador en Pantalla",
+                            text = tr("Simulador en Pantalla", "In-App Bubble Simulator"),
                             fontFamily = FontFamily.Monospace,
                             fontWeight = FontWeight.Bold,
                             color = NeonCyan,
@@ -363,7 +565,10 @@ fun OverlaySettingsScreen(
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            text = "Prueba la burbuja arrastrable y el mini HUD interactivo directamente dentro de esta app.",
+                            text = tr(
+                                "Prueba la burbuja arrastrable y el mini HUD interactivo directamente dentro de esta app.",
+                                "Test the draggable bubble and mini interactive HUD directly inside this app."
+                            ),
                             fontSize = 12.sp,
                             color = TextMuted
                         )
@@ -389,7 +594,7 @@ fun OverlaySettingsScreen(
             CyberCard(borderColor = CyberBorder) {
                 Column {
                     Text(
-                        text = "CÓMO FUNCIONA EL COMPANION DE VENTAS",
+                        text = tr("CÓMO FUNCIONA EL COMPANION DE VENTAS", "HOW THE SALES COMPANION WORKS"),
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                         fontSize = 12.sp,
@@ -401,20 +606,29 @@ fun OverlaySettingsScreen(
 
                     InstructionStepItem(
                         number = "1",
-                        title = "Activa la burbuja flotante",
-                        description = "Enciende el interruptor superior. Si es tu primera vez, concede el permiso de superposición en los ajustes de Android."
+                        title = tr("Activa la burbuja flotante", "Turn on the floating bubble"),
+                        description = tr(
+                            "Enciende el interruptor superior. Si es tu primera vez, concede el permiso de superposición en los ajustes de Android.",
+                            "Turn on the switch above. If it's your first time, grant the overlay permission in Android settings."
+                        )
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     InstructionStepItem(
                         number = "2",
-                        title = "Abre WhatsApp o WhatsApp Business",
-                        description = "La burbuja de rayo ⚡ permanecerá flotando en el borde de tu pantalla sobre tus chats."
+                        title = tr("Abre WhatsApp o WhatsApp Business", "Open WhatsApp or WhatsApp Business"),
+                        description = tr(
+                            "La burbuja de rayo ⚡ permanecerá flotando en el borde de tu pantalla sobre tus chats.",
+                            "The lightning ⚡ bubble will float on your screen edge over your chat conversations."
+                        )
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     InstructionStepItem(
                         number = "3",
-                        title = "Toca y copia en 1 segundo",
-                        description = "Toca la burbuja para abrir el HUD, presiona '⚡ COPIAR' en la plantilla deseada y pégala instantáneamente a tu cliente."
+                        title = tr("Toca y copia en 1 segundo", "Tap and copy in 1 second"),
+                        description = tr(
+                            "Toca la burbuja para abrir el HUD, presiona '⚡ COPIAR' en la plantilla deseada y pégala instantáneamente a tu cliente.",
+                            "Tap the bubble to open HUD, click '⚡ COPY' on your chosen template, and paste it to your client instantly."
+                        )
                     )
                 }
             }
@@ -422,7 +636,7 @@ fun OverlaySettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             NeonButton(
-                text = "⚡ ABRIR WHATSAPP AHORA",
+                text = tr("⚡ ABRIR WHATSAPP AHORA", "⚡ OPEN WHATSAPP NOW"),
                 color = NeonGreen,
                 icon = Icons.Default.Send,
                 onClick = onLaunchWhatsApp,
